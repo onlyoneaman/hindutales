@@ -16,7 +16,7 @@ class VideoMaker:
         scripts = self.story_guru.generate_scripts(primary_result)
         image_prompts = self.prompt_guru.get_image_prmopts(self.title, primary_result.chapters, scripts.scripts)
 
-        images = ImageMaker.generate(image_prompts.prompts)
+        # images = ImageMaker.generate(image_prompts.prompts)
 
         return VideoMakerResult(
             title=primary_result.title,
