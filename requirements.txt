@@ -10,3 +10,4 @@ pydantic
 uuid
 asyncio
 requests
+elevenlabs
