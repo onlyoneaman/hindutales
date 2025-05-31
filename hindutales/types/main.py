@@ -10,12 +10,6 @@ class Chapter(BaseModel):
     title: str
     description: str
 
-class VideoMakerResult(BaseModel):
-    title: str
-    chapters: List[Chapter]
-    scripts: List[str]
-    lang: str
-
 class PrimaryResult(BaseModel):
     title: str
     chapters: List[Chapter]
@@ -23,3 +17,12 @@ class PrimaryResult(BaseModel):
 class Scripts(BaseModel):
     scripts: List[str]
     
+class ImagePrompts(BaseModel):
+    prompts: List[str]
+
+class VideoMakerResult(BaseModel):
+    title: str
+    chapters: List[Chapter]
+    scripts: List[str]
+    image_prompts: ImagePrompts
+    lang: str
