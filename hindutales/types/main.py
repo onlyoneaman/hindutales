@@ -34,3 +34,8 @@ class VideoMakerResult(BaseModel):
 class VideoGenInput(BaseModel):
     image_path: str
     video_prompt: str
+
+class Message(BaseModel):
+    role: str
+    content: str
+    

@@ -4,8 +4,6 @@ from typing import Type, TypeVar, Union, List
 from openai import AzureOpenAI
 import json
 
-
-
 T = TypeVar("T", bound=BaseModel)
 
 load_dotenv()
@@ -25,10 +23,10 @@ class T2TConverter:
 
     def generate(
         self,
-        input_data: Union[BaseModel, List[BaseModel]],
         system_prompt: str,
         user_prompt: str,
-        output_type: Union[Type[T], Type[List[T]]]
+        output_type: Union[Type[T], Type[List[T]]],
+        input_data: Union[BaseModel, List[BaseModel], None] = None,
     ) -> Union[T, List[T]]:
         """
         Convert input data to the desired output type using AzureOpenAI.
@@ -39,23 +37,27 @@ class T2TConverter:
         :param output_type: The desired output type (Pydantic model or list of Pydantic models).
         :return: The converted output in the specified format.
         """
-        # Prepare input data as JSON
-        if isinstance(input_data, BaseModel):
-            input_json = input_data.model_dump_json()
-        elif isinstance(input_data, list) and all(isinstance(item, BaseModel) for item in input_data):
-            input_json = json.dumps([item.model_dump_json() for item in input_data])
+        if input_data is not None:
+            if isinstance(input_data, BaseModel):
+                input_json = input_data.model_dump_json()
+            elif isinstance(input_data, list) and all(isinstance(item, BaseModel) for item in input_data):
+                input_json = json.dumps([item.model_dump_json() for item in input_data])
+            else:
+                raise ValueError("Input data must be a Pydantic object or a list of Pydantic objects.")
         else:
-            raise ValueError("Input data must be a Pydantic object or a list of Pydantic objects.")
+            input_json = None
 
-        # Prepare messages for AzureOpenAI
+        if input_json is not None:
+            user_msg = f"{user_prompt}\nInput: {input_json}"
+        else:
+            user_msg = user_prompt
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"{user_prompt}\nInput: {input_json}"}
+            {"role": "user", "content": user_msg}
         ]
-        # Call AzureOpenAI API
         response = None
         try:
-            client = AzureOpenAI(api_version="2024-10-21")  # Initialize AzureOpenAI client
+            client = AzureOpenAI(api_version="2024-10-21")
             response = client.beta.chat.completions.parse(
                 model=self.model,
                 messages=messages,
@@ -65,13 +67,10 @@ class T2TConverter:
             )
             content = response.choices[0].message.content
 
-            # Parse the response content
             if isinstance(content, dict):
                 parsed = content
             else:
                 parsed = json.loads(content)
-
-            # Convert parsed content to the desired output type
             if issubclass(output_type, BaseModel):
                 return output_type(**parsed)
             elif issubclass(output_type, list) and all(issubclass(output_type.__args__[0], BaseModel) for _ in output_type.__args__):

@@ -1,12 +1,17 @@
 from typing import List
-from hindutales.types.main import Chapter
+from hindutales.nodes.agents.t2t.t2t import T2TConverter
+from hindutales.types.main import Chapter, Message
 from hindutales.client.gemini_client import client
 from hindutales.types.main import ImagePrompts, VideoPrompts
 import json
 
 class PromptGuru:
     def __init__(self):
-        pass
+        self.t2t = T2TConverter(
+            model="gpt-4o",
+            temperature=0.8,
+            top_p=0.9
+        )
     
     def get_image_prmopts(self, title: str, chapters: List[Chapter], scripts: List[str]):
         """
@@ -39,28 +44,20 @@ Use best image prompting techniques to generate the image.
 Return in format:
 prompts: List of prompts for the image.
         """
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Story title: {title}", "chapters": [chapter.model_dump() for chapter in chapters], "scripts": scripts},
+        messages: List[Message] = [
+            Message(role="system", content=system_prompt),
+            Message(role="user", content=f"Story title: {title}", chapters=[chapter.model_dump() for chapter in chapters], scripts=scripts),
         ]
-        resp = client.beta.chat.completions.parse(
-            model="gemini-2.0-flash-lite",
-            messages=messages,
-            temperature=0.8,
-            top_p=0.9,
-            response_format=ImagePrompts
+        resp = self.t2t.generate(
+            input_data=messages,
+            system_prompt=system_prompt,
+            user_prompt=f"Story title: {title}",
+            output_type=ImagePrompts
         )
         try:
-            content = resp.choices[0].message.content
-            if isinstance(content, dict):
-                parsed = content
-            else:
-                parsed = json.loads(content)
-            return ImagePrompts(
-                prompts=parsed.get("prompts", []),
-            )
+            return resp
         except Exception as e:
-            raise ValueError(f"Failed to parse Gemini output: {e}\nRaw output: {getattr(resp.choices[0].message, 'content', '')}")
+            raise ValueError(f"Failed to parse Gemini output: {e}")
         
     def get_video_prompts(self, title: str, chapters: List[Chapter], scripts: List[str]):
         """
@@ -93,25 +90,13 @@ Use best video prompting techniques to generate the video.
 Return in format:
 prompts: List of prompts for the video.
         """
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Story title: {title}", "chapters": [chapter.model_dump() for chapter in chapters], "scripts": scripts},
-        ]
-        resp = client.beta.chat.completions.parse(
-            model="gemini-2.0-flash-lite",
-            messages=messages,
-            temperature=0.8,
-            top_p=0.9,
-            response_format=VideoPrompts
+        user_msg = f"Story title: {title}, chapters: {chapters}, scripts: {scripts}"
+        resp = self.t2t.generate(
+            system_prompt=system_prompt,
+            user_prompt=user_msg,
+            output_type=VideoPrompts
         )
         try:
-            content = resp.choices[0].message.content
-            if isinstance(content, dict):
-                parsed = content
-            else:
-                parsed = json.loads(content)
-            return VideoPrompts(
-                prompts=parsed.get("prompts", []),
-            )
+            return resp
         except Exception as e:
-            raise ValueError(f"Failed to parse Gemini output: {e}\nRaw output: {getattr(resp.choices[0].message, 'content', '')}")
+            raise ValueError(f"Failed to parse Gemini output: {e}")

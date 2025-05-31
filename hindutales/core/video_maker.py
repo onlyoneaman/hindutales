@@ -24,7 +24,7 @@ class VideoMaker:
         for i in range(len(images)):
             all_video_inputs.append(VideoGenInput(image_path=images[i], video_prompt=video_prompts.prompts[i]))
 
-        # video_gen = VideoGen.create_video(video_prompts)
+        video_gen = VideoGen.create_video(all_video_inputs)
 
         return VideoMakerResult(
             title=primary_result.title,

@@ -1,10 +1,15 @@
-from hindutales.client.gemini_client import client
-from hindutales.types.main import PrimaryResult, Scripts
-import json
+from typing import List
+from hindutales.nodes.agents.t2t.t2t import T2TConverter
+from hindutales.types.main import PrimaryResult, Scripts, Message
 
 class StoryGuru:
     def __init__(self):
         pass
+        self.t2t = T2TConverter(
+            model="gpt-4o",
+            temperature=0.8,
+            top_p=0.9
+        )
 
     def generate_outline(self, title: str, lang: str):
         system_prompt = (
@@ -14,29 +19,20 @@ class StoryGuru:
             "2. Outline of the video in chapters. Each chapter should be atleast 15 seconds long. Keep chapter title short"
             "Return a JSON with keys: title, chapters."
         )
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Theme: {title}"},
+        messages: List[Message] = [
+            Message(role="system", content=system_prompt),
+            Message(role="user", content=f"Theme: {title}")
         ]
-        resp = client.beta.chat.completions.parse(
-            model="gemini-2.0-flash-lite",
-            messages=messages,
-            temperature=0.8,
-            top_p=0.9,
-            response_format=PrimaryResult
+        resp = self.t2t.generate(
+            input_data=messages,
+            system_prompt=system_prompt,
+            user_prompt=f"Theme: {title}",
+            output_type=PrimaryResult
         )
         try:
-            content = resp.choices[0].message.content
-            if isinstance(content, dict):
-                parsed = content
-            else:
-                parsed = json.loads(content)
-            return PrimaryResult(
-                title=parsed.get("title", ""),
-                chapters=parsed.get("chapters", []),
-            )
+            return resp
         except Exception as e:
-            raise ValueError(f"Failed to parse Gemini output: {e}\nRaw output: {getattr(resp.choices[0].message, 'content', '')}")
+            raise ValueError(f"Failed to parse Gemini output: {e}")
 
     def generate_scripts(self, primary_result: PrimaryResult) -> Scripts:
         system_prompt = (
@@ -46,25 +42,17 @@ class StoryGuru:
             "Return a JSON with keys: scripts."
         )
         chapters_data = [chapter.model_dump() for chapter in primary_result.chapters]
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Theme: {primary_result.title}", "chapters": chapters_data},
+        messages: List[Message] = [
+            Message(role="system", content=system_prompt),
+            Message(role="user", content=f"Theme: {primary_result.title}", chapters=chapters_data),
         ]
-        resp = client.beta.chat.completions.parse(
-            model="gemini-2.0-flash-lite",
-            messages=messages,
-            temperature=0.8,
-            top_p=0.9,
-            response_format=Scripts
+        resp = self.t2t.generate(
+            input_data=messages,
+            system_prompt=system_prompt,
+            user_prompt=f"Theme: {primary_result.title}",
+            output_type=Scripts
         )
         try:
-            content = resp.choices[0].message.content
-            if isinstance(content, dict):
-                parsed = content
-            else:
-                parsed = json.loads(content)
-            return Scripts(
-                scripts=parsed.get("scripts", []),
-            )
+            return resp
         except Exception as e:
-            raise ValueError(f"Failed to parse Gemini output: {e}\nRaw output: {getattr(resp.choices[0].message, 'content', '')}")
+            raise ValueError(f"Failed to parse Gemini output: {e}")
