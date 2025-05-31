@@ -23,17 +23,15 @@ class T2AConverter:
         request_ids = []
         audio_buffers = []
         for paragraph in paragraphs:
-            # Usually we get back a stream from the convert function, but with_raw_response is
-            # used to get the headers from the response
+            # Only pass the last 3 request_ids to comply with API constraints
+            limited_request_ids = request_ids[-3:]
             with self.client.text_to_speech.with_raw_response.convert(
                 text=paragraph,
                 voice_id=self.voice_id,
                 model_id=self.model_id,
-                previous_request_ids=request_ids
+                previous_request_ids=limited_request_ids
             ) as response:
                 request_ids.append(response._response.headers.get("request-id"))
-                # response._response.headers also contains useful information like 'character-cost',
-                # which shows the cost of the generation in characters.
                 audio_data = b''.join(chunk for chunk in response.data)
                 audio_buffers.append(BytesIO(audio_data))
 
