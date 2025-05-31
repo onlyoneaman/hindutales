@@ -20,9 +20,13 @@ class Scripts(BaseModel):
 class ImagePrompts(BaseModel):
     prompts: List[str]
 
+class VideoPrompts(BaseModel):
+    prompts: List[str]
+
 class VideoMakerResult(BaseModel):
     title: str
     chapters: List[Chapter]
     scripts: List[str]
     image_prompts: ImagePrompts
+    video_prompts: VideoPrompts
     lang: str
