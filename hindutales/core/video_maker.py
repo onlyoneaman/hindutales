@@ -8,6 +8,7 @@ from pathlib import Path
 import json
 import shutil
 import re
+import time
 
 def sanitize_filename(name: str) -> str:
     return re.sub(r'[^\w\-]', '_', name)
@@ -23,7 +24,8 @@ class VideoMaker:
     def generate(self) -> VideoMakerResult:
         primary_result = self.story_guru.generate_outline(self.title, self.lang)
 
-        save_dir: Path = Path('output') / sanitize_filename(self.title)
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        save_dir: Path = Path('output') / sanitize_filename(self.title + "_" + self.lang + "_" + timestamp)
         save_dir.mkdir(parents=True, exist_ok=True)
 
         # Save LLM-generated data
