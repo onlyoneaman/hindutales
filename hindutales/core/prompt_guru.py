@@ -15,9 +15,21 @@ class PromptGuru:
         system_prompt = """
         We are writing a Hindu mythology story. The story consists of many scenes.
 We want to generate an image for each scene.
-Guidelines:
+
+Coomon ART STYLE GUIDELINES:
 - Use a simple, vivid, and age-appropriate style.
 - Use a color palette and style that is faithful to Hindu mythology but still modern.
+- Create images in a cartoon-like, soft-anime style with clean, smooth lines and vibrant yet harmonious colors.
+- Characters should have slightly exaggerated features: large expressive eyes, small noses, and soft facial contours.
+- Use warm, glowing skin tones and slender, elongated proportions (6-7 head heights for adults).
+- Depict traditional Indian garments (sarees, dhotis, kurtas) with simplified yet intricate patterns.
+- Include proper divine attributes (e.g., Vishnu's conch, Shiva's trident, Ganesha's modak) in a stylized form.
+- Use rich colors inspired by Indian festivals: saffron orange, deep red, royal blue, emerald green, and golden yellow.
+- Add subtle halos or auras around deities using warm golds or cool blues to signify divinity.
+- Create mystical backgrounds inspired by Hindu mythology (forests, celestial palaces, mountains).
+- Employ soft gradient-based shading with minimal hard edges.
+- Ensure culturally authentic and reverent depictions that maintain consistency across all images.
+- Avoid photorealism, overly dark themes, or generic anime tropes that deviate from Hindu mythological aesthetics.
 
 We will provide the story title, description, current scene title and story, and previous and next scene titles if available.
 
