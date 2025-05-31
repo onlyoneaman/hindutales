@@ -30,3 +30,7 @@ class VideoMakerResult(BaseModel):
     image_prompts: ImagePrompts
     video_prompts: VideoPrompts
     lang: str
+
+class VideoGenInput(BaseModel):
+    image_path: str
+    video_prompt: str

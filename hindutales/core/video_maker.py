@@ -1,6 +1,7 @@
 from hindutales.core.story_guru import StoryGuru
 from hindutales.core.prompt_guru import PromptGuru
-from hindutales.types.main import VideoMakerParams, VideoMakerResult
+from hindutales.core.video_gen import VideoGen
+from hindutales.types.main import VideoGenInput, VideoMakerParams, VideoMakerResult
 from hindutales.core.image_maker import ImageMaker
 
 class VideoMaker:
@@ -17,7 +18,13 @@ class VideoMaker:
         image_prompts = self.prompt_guru.get_image_prmopts(self.title, primary_result.chapters, scripts.scripts)
         video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
 
-        # images = ImageMaker.generate(image_prompts.prompts)
+        images = ImageMaker.generate(image_prompts.prompts)
+
+        all_video_inputs = []
+        for i in range(len(images)):
+            all_video_inputs.append(VideoGenInput(image_path=images[i], video_prompt=video_prompts.prompts[i]))
+
+        # video_gen = VideoGen.create_video(video_prompts)
 
         return VideoMakerResult(
             title=primary_result.title,
