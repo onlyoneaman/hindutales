@@ -96,38 +96,66 @@ class PromptGuru:
         except Exception as e:
             raise ValueError(f"Failed to parse Gemini output: {e}")
         
-    def get_video_prompts(self, title: str, chapters: List[Chapter], scripts: List[str]):
+    def get_video_prompts(self, title: str, chapters: List[Chapter], scripts: List[str], image_prompts: List[str] = None):
         """
-        given a title, chapter, its scripts, generate a prompt for a video model to generate a video for the chapters
+        Given a title, chapters, their scripts, and corresponding image prompts, generate a prompt for a video model
+        to generate a video that matches the style and content of the images with minimal animation.
+        
+        Args:
+            title: Title of the story
+            chapters: List of Chapter objects
+            scripts: List of scripts for each chapter
+            image_prompts: List of prompts used to generate the corresponding images
+            
+        Returns:
+            VideoPrompts object containing prompts for video generation
         """
-        system_prompt = """
-            We are writing a Hindu mythology story. The story consists of many scenes.
-            We want to generate a video for each scene.
+        system_prompt = f"""
+            You are an expert in creating video prompts for Hindu mythological content. Your task is to generate prompts 
+            that will create short video clips with minimal, subtle animations based on the provided image prompts and scripts.
+            
+            IMPORTANT: You MUST generate exactly {len(image_prompts)} video prompts, one for each image prompt provided.
+            The number of video prompts must match the number of image prompts exactly.
 
-            Coomon ART STYLE GUIDELINES:
-            - Use a simple, vivid, and age-appropriate style.
-            - Use a color palette and style that is faithful to Hindu mythology but still modern.
-            - Create images in a cartoon-like, soft-anime style with clean, smooth lines and vibrant yet harmonious colors.
-            - Characters should have slightly exaggerated features: large expressive eyes, small noses, and soft facial contours.
-            - Use warm, glowing skin tones and slender, elongated proportions (6-7 head heights for adults).
-            - Depict traditional Indian garments (sarees, dhotis, kurtas) with simplified yet intricate patterns.
-            - Include proper divine attributes (e.g., Vishnu's conch, Shiva's trident, Ganesha's modak) in a stylized form.
-            - Use rich colors inspired by Indian festivals: saffron orange, deep red, royal blue, emerald green, and golden yellow.
-            - Add subtle halos or auras around deities using warm golds or cool blues to signify divinity.
-            - Create mystical backgrounds inspired by Hindu mythology (forests, celestial palaces, mountains).
-            - Employ soft gradient-based shading with minimal hard edges.
-            - Ensure culturally authentic and reverent depictions that maintain consistency across all images.
-            - Avoid photorealism, overly dark themes, or generic anime tropes that deviate from Hindu mythological aesthetics.
+            VIDEO STYLE GUIDELINES:
+            - Create very subtle animations or camera movements that enhance the still image
+            - Use minimal motion to bring the scene to life without changing the core composition
+            - Maintain the artistic style of the original image prompt
+            - Keep animations smooth and natural, avoiding sudden or jarring movements
+            - Focus on subtle elements like flowing fabric, gentle facial expressions, or atmospheric effects
+            - Ensure all depictions are culturally accurate and respectful to Hindu mythology
 
-            We will provide the story title, description, current scene title and story, and previous and next scene titles if available.
+            ANIMATION TIPS:
+            - For characters: subtle breathing, blinking, or slight weight shifts
+            - For clothing: gentle flowing of fabric or jewelry movement
+            - For environment: subtle cloud movement, water ripples, or floating particles
+            - For divine elements: gentle glow or aura pulsing
+            - Camera: subtle zooms or slow pans if they enhance the storytelling
 
-            Return a list of prompts for the video equal to the number of chapters.
-            Use best video prompting techniques to generate the video.
+            ART STYLE (must match the original image prompt):
+            - Cartoon-like, soft anime aesthetic inspired by Indian miniature paintings and Amar Chitra Katha
+            - Clean lines and soft shading with a vibrant yet harmonious Indian color palette
+            - Glowing divine auras and expressive yet respectful facial expressions
+            - Mythologically accurate divine symbols and hand gestures
+            - Traditional Indian attire with stylized mythological backgrounds
+            - Cinematic composition and dynamic lighting for a reverent, mythic atmosphere
+
+            Your output should be a video prompt that, when combined with the original image, will create a short 
+            (2-5 second) clip with subtle animation that brings the scene to life while maintaining the original 
+            composition and style.
 
             Return in format:
-            prompts: List of prompts for the video.
+            prompts: List of prompts for the video, one for each chapter
         """
-        user_msg = f"Story title: {title}, chapters: {chapters}, scripts: {scripts}"
+        user_msg = f"""
+        Story title: {title}
+        Chapters: {[chapter.model_dump() for chapter in chapters]}
+        Scripts: {scripts}
+        Image Prompts: {image_prompts if image_prompts else 'No image prompts provided'}
+        
+        Please generate video prompts that will create subtle animations based on these images and scripts.
+        Focus on maintaining the artistic style while adding minimal, tasteful motion.
+        """
         resp = self.t2t.generate(
             system_prompt=system_prompt,
             user_prompt=user_msg,

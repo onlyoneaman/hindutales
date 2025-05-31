@@ -5,7 +5,7 @@ import time
 def main():
     load_dotenv()
     start_time = time.time()
-    title = "Ganga’s Silent Sacrifice"
+    title = "Sita's abduction by Ravana"
     video_maker = VideoMaker(params=VideoMakerParams(title=title))
     result = video_maker.generate()
     video_maker.save_video(result, title)

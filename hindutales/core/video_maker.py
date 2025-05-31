@@ -42,7 +42,7 @@ class VideoMaker:
             json.dump(scripts.model_dump(), f, ensure_ascii=False, indent=2)
 
         image_prompts = self.prompt_guru.get_image_prompts(self.title, primary_result.chapters, scripts.scripts)
-        video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
+        video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts, image_prompts.prompts)
 
         with open(save_dir / 'image_prompts.json', 'w', encoding='utf-8') as f:
             json.dump(image_prompts.model_dump(), f, ensure_ascii=False, indent=2)
