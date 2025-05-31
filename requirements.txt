@@ -1,0 +1,12 @@
+gunicorn
+ffmpeg-python
+google-genai
+openai
+datetime
+flask
+flask-cors
+python-dotenv
+pydantic
+uuid
+asyncio
+requests
