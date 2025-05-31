@@ -1,7 +1,7 @@
 from hindutales.core.video_maker import VideoMaker, VideoMakerParams
 
 def main():
-    video_maker = VideoMaker(params=VideoMakerParams(title="Ganesha Tooth"))
+    video_maker = VideoMaker(params=VideoMakerParams(title="Hanuman and sanjeevani mountain"))
     result = video_maker.generate()
     print(result)
     
