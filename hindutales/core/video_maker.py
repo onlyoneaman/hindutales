@@ -4,11 +4,12 @@ from hindutales.core.video_gen import VideoGen
 from hindutales.types.main import VideoGenInput, VideoMakerParams, VideoMakerResult, AudioMakerParams, AudioMakerResult
 from hindutales.core.image_maker import ImageMaker
 from hindutales.core.audio_maker import AudioMaker
+import time
+from typing import Any
 from pathlib import Path
 import json
 import shutil
 import re
-import time
 import glob
 from pathlib import Path
 import ffmpeg
@@ -26,8 +27,6 @@ class VideoMaker:
         self.prompt_guru = PromptGuru()
 
     def generate(self) -> VideoMakerResult:
-        import time
-        from typing import Any
         print("1. Generating outline")
         step_start: float = time.perf_counter()
         primary_result = self.story_guru.generate_outline(self.title, self.lang)
@@ -43,7 +42,7 @@ class VideoMaker:
 
         print("2. Generating scripts")
         step_start = time.perf_counter()
-        scripts = self.story_guru.generate_scripts(primary_result)
+        scripts = self.story_guru.generate_scripts(primary_result, self.lang)
         print(f"Step 2 done in {time.perf_counter() - step_start:.2f} seconds.")
 
         with open(save_dir / 'scripts.json', 'w', encoding='utf-8') as f:

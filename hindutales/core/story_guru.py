@@ -4,7 +4,7 @@ from hindutales.types.main import PrimaryResult, Scripts, Message
 
 # story -> chapters -> scripts, videos
 LENGTH_OF_STORY_IN_SECONDS = 60
-NUMBER_OF_CHAPTERS_PER_STORY = 4
+NUMBER_OF_CHAPTERS_PER_STORY = 5
 NUMBER_OF_SCRIPTS_PER_CHAPTER = 2
 NUMBER_OF_VIDEOS_PER_CHAPTER = 1
 LENGTH_OF_SCRIPT_IN_SECONDS = LENGTH_OF_STORY_IN_SECONDS / (NUMBER_OF_CHAPTERS_PER_STORY * NUMBER_OF_SCRIPTS_PER_CHAPTER)
@@ -49,11 +49,12 @@ class StoryGuru:
         except Exception as e:
             raise ValueError(f"Failed to parse Gemini output: {e}")
 
-    def generate_scripts(self, primary_result: PrimaryResult) -> Scripts:
+    def generate_scripts(self, primary_result: PrimaryResult, lang: str) -> Scripts:
         system_prompt = (
             f"You are an expert mythological storyteller and a creative short-form video writer. Your goal is to create scripts for chapters of a story, with each script corresponding to a specific chapter from the provided primary result. Most importantly, the scripts must be factually accurate to authentic Indian mythology.\n\n"
             f"You must focus on correctness, coherence, and depth, drawing only from real mythological sources, scriptures, and epics (such as the Ramayana, Mahabharata, Puranas, Vedas, etc.). Do NOT invent or alter events, characters, or facts unless explicitly asked for a fictionalized version.\n\n"
-            f"You will be given a list of chapters that together form a complete story. For each chapter, you will generate {NUMBER_OF_SCRIPTS_PER_CHAPTER} scripts that describe that specific chapter in detail. When combined, all scripts should form a coherent and continuous narrative that tells the complete story.\n\n"
+            f"You will be given a list of chapters that together form a complete story. For each chapter, you will generate {NUMBER_OF_SCRIPTS_PER_CHAPTER} scripts that describe that specific chapter in detail. When combined, all scripts should form a coherent and continuous narrative that tells the complete story.\n"
+            f"The scripts should be in {lang}.\n"
             f"Requirements:\n"
             f"1. Generate EXACTLY {NUMBER_OF_CHAPTERS_PER_STORY * NUMBER_OF_SCRIPTS_PER_CHAPTER} total scripts ({NUMBER_OF_SCRIPTS_PER_CHAPTER} scripts per chapter for {NUMBER_OF_CHAPTERS_PER_STORY} chapters), no more and no less.\n"
             f"2. Each script MUST be {LENGTH_OF_SCRIPT_IN_SECONDS} seconds long when narrated as audio.\n"
