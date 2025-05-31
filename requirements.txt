@@ -11,3 +11,4 @@ uuid
 asyncio
 requests
 elevenlabs
+ffmpeg-python

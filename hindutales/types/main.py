@@ -36,6 +36,7 @@ class VideoMakerResult(BaseModel):
     image_prompts: ImagePrompts
     video_prompts: VideoPrompts
     lang: str
+    timestamp: str
 
 class VideoGenInput(BaseModel):
     image_path: str

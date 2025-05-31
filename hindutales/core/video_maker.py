@@ -9,6 +9,10 @@ import json
 import shutil
 import re
 import time
+import glob
+from pathlib import Path
+import ffmpeg
+import re
 
 def sanitize_filename(name: str) -> str:
     return re.sub(r'[^\w\-]', '_', name)
@@ -82,5 +86,104 @@ class VideoMaker:
             scripts=scripts.scripts,
             image_prompts=image_prompts,
             video_prompts=video_prompts,
-            lang=self.lang
+            lang=self.lang,
+            timestamp=timestamp
         )
+
+    def save_video(self, result: VideoMakerResult, title: str) -> None:
+        save_dir: Path = Path('output') / sanitize_filename(title + "_" + result.lang + "_" + result.timestamp)
+        save_dir.mkdir(parents=True, exist_ok=True)
+        video_path: Path = save_dir / f'{title}.mp4'
+        input_dir = save_dir
+        # input_dir: Path = Path(result.input_dir) if hasattr(result, 'input_dir') else Path('.')
+
+        audio_files: list[str] = sorted(glob.glob(str(input_dir / 'audio_*.mp3')))
+        image_files: list[str] = sorted(glob.glob(str(input_dir / 'image_*.png')))
+
+        print(f"Audio files: {audio_files}")
+        print(f"Image files: {image_files}")
+
+        def extract_index(filename: str) -> int:
+            match = re.search(r'_(\d+)\.', filename)
+            return int(match.group(1)) if match else -1
+
+        audio_dict = {extract_index(f): f for f in audio_files if extract_index(f) != -1}
+        image_dict = {extract_index(f): f for f in image_files if extract_index(f) != -1}
+        common_indices = sorted(set(audio_dict) & set(image_dict))
+        missing_audio = sorted(set(image_dict) - set(audio_dict))
+        missing_image = sorted(set(audio_dict) - set(image_dict))
+        for idx in missing_audio:
+            print(f"Warning: Missing audio file for image index {idx}")
+        for idx in missing_image:
+            print(f"Warning: Missing image file for audio index {idx}")
+        if not common_indices:
+            raise ValueError("No matching audio/image index pairs found.")
+        paired_files = [(audio_dict[i], image_dict[i]) for i in common_indices]
+        segment_files: list[Path] = []
+
+        # Step 1: Generate video segments for each image/audio pair
+
+        print(f"Generating video segments for {len(paired_files)} pairs")
+        print(f"Joined video segments: {paired_files}")
+
+        for idx, (audio, image) in enumerate(paired_files, 1):
+            # Get audio duration using ffmpeg.probe
+            probe = ffmpeg.probe(audio)
+            duration: float = float(probe['format']['duration'])
+            segment_path: Path = save_dir / f'segment_{idx}.mp4'
+            segment_files.append(segment_path)
+
+            stream_img = ffmpeg.input(image, loop=1, t=duration)
+            stream_aud = ffmpeg.input(audio)
+            stream = ffmpeg.output(
+                stream_img.video.filter('scale', 1024, 1024),
+                stream_aud.audio.filter('aformat', channel_layouts='stereo', sample_rates=44100),
+                str(segment_path),
+                vcodec='libx264',
+                acodec='aac',
+                ac=2,
+                ar=44100,
+                pix_fmt='yuv420p',
+                shortest=None,
+                t=duration,
+                y=None
+            )
+            stream.run(overwrite_output=True, quiet=True)
+
+        # Step 2: Concatenate all segments
+        if not segment_files:
+            raise ValueError("No video segments were created. Check that your audio/image files are valid.")
+        # Filter segment files to only those with both video and audio streams
+        valid_segment_files = []
+        for seg in segment_files:
+            probe = ffmpeg.probe(str(seg))
+            has_video = any(s['codec_type'] == 'video' for s in probe['streams'])
+            has_audio = any(s['codec_type'] == 'audio' for s in probe['streams'])
+            if has_video and has_audio:
+                valid_segment_files.append(seg)
+            else:
+                print(f"Warning: Skipping {seg} (missing video or audio stream)")
+        if not valid_segment_files:
+            raise ValueError("No valid video segments with both video and audio streams found.")
+
+        # FIXED: Use correct ffmpeg-python concatenation approach
+        if len(valid_segment_files) == 1:
+            # If only one segment, just copy it
+            shutil.copy2(valid_segment_files[0], video_path)
+        else:
+            # Create a concat file for ffmpeg
+            concat_file = save_dir / 'concat_list.txt'
+            with open(concat_file, 'w') as f:
+                for seg in valid_segment_files:
+                    f.write(f"file '{seg.resolve()}'\n")
+            
+        (
+            ffmpeg
+            .input(str(concat_file), format='concat', safe=0)
+            .output(str(video_path), c='copy')
+            .run(overwrite_output=True, quiet=False)
+        )
+
+        # Step 3: Clean up segment files
+        for segment in segment_files:
+            segment.unlink(missing_ok=True)

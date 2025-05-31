@@ -31,7 +31,7 @@ class ImageMaker:
             model="gpt-image-1",
             prompt=prompt,
             size="1024x1024",
-            quality="medium",
+            quality="high",
         )
         image_base64: str = result.data[0].b64_json
         image_bytes: bytes = base64.b64decode(image_base64)
