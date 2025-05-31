@@ -1,5 +1,5 @@
 from hindutales.core.story_guru import StoryGuru
-from hindutales.types.main import VideoMakerParams, VideoMakerResult, PrimaryResult
+from hindutales.types.main import VideoMakerParams, VideoMakerResult
 
 class VideoMaker:
     def __init__(self, params: VideoMakerParams) -> None:
@@ -9,13 +9,11 @@ class VideoMaker:
         self.story_guru = StoryGuru()
 
     def generate(self) -> VideoMakerResult:
-        primary_result = self.generate_primary_result()
+        primary_result = self.story_guru.generate_outline(self.title, self.lang)
+        scripts = self.story_guru.generate_scripts(primary_result)
         return VideoMakerResult(
             title=primary_result.title,
             chapters=primary_result.chapters,
+            scripts=scripts.scripts,
             lang=self.lang
         )
-
-    def generate_primary_result(self) -> PrimaryResult:
-        outline = self.story_guru.generate_outline(self.title, self.lang)
-        return outline

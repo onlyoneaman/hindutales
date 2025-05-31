@@ -13,8 +13,13 @@ class Chapter(BaseModel):
 class VideoMakerResult(BaseModel):
     title: str
     chapters: List[Chapter]
+    scripts: List[str]
     lang: str
 
 class PrimaryResult(BaseModel):
     title: str
     chapters: List[Chapter]
+
+class Scripts(BaseModel):
+    scripts: List[str]
+    
