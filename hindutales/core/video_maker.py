@@ -26,9 +26,14 @@ class VideoMaker:
         self.prompt_guru = PromptGuru()
 
     def generate(self) -> VideoMakerResult:
+        import time
+        from typing import Any
+        print("1. Generating outline")
+        step_start: float = time.perf_counter()
         primary_result = self.story_guru.generate_outline(self.title, self.lang)
+        print(f"Step 1 done in {time.perf_counter() - step_start:.2f} seconds.")
 
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        timestamp: str = time.strftime("%Y%m%d_%H%M%S")
         save_dir: Path = Path('output') / sanitize_filename(self.title + "_" + self.lang + "_" + timestamp)
         save_dir.mkdir(parents=True, exist_ok=True)
 
@@ -36,19 +41,27 @@ class VideoMaker:
         with open(save_dir / 'primary_result.json', 'w', encoding='utf-8') as f:
             json.dump(primary_result.model_dump(), f, ensure_ascii=False, indent=2)
 
+        print("2. Generating scripts")
+        step_start = time.perf_counter()
         scripts = self.story_guru.generate_scripts(primary_result)
+        print(f"Step 2 done in {time.perf_counter() - step_start:.2f} seconds.")
 
         with open(save_dir / 'scripts.json', 'w', encoding='utf-8') as f:
             json.dump(scripts.model_dump(), f, ensure_ascii=False, indent=2)
 
+        print("3. Generating image prompts")
+        step_start = time.perf_counter()
         image_prompts = self.prompt_guru.get_image_prompts(self.title, primary_result.chapters, scripts.scripts)
-        video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
+        print(f"Step 3 done in {time.perf_counter() - step_start:.2f} seconds.")
+        # video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
 
         with open(save_dir / 'image_prompts.json', 'w', encoding='utf-8') as f:
             json.dump(image_prompts.model_dump(), f, ensure_ascii=False, indent=2)
-        with open(save_dir / 'video_prompts.json', 'w', encoding='utf-8') as f:
-            json.dump(video_prompts.model_dump(), f, ensure_ascii=False, indent=2)
+        # with open(save_dir / 'video_prompts.json', 'w', encoding='utf-8') as f:
+            # json.dump(video_prompts.model_dump(), f, ensure_ascii=False, indent=2)
 
+        print("4. Generating audio")
+        step_start = time.perf_counter()
         audio_maker = AudioMaker(
             params=AudioMakerParams(
                 paras=scripts.scripts,
@@ -57,35 +70,29 @@ class VideoMaker:
             )
         )
         audios = audio_maker.generate()
+        print(f"Step 4 done in {time.perf_counter() - step_start:.2f} seconds.")
 
+        print("5. Generating images")
+        step_start = time.perf_counter()
         images = ImageMaker.generate(image_prompts.prompts)
+        print(f"Step 5 done in {time.perf_counter() - step_start:.2f} seconds.")
 
-        # all_video_inputs = []
-        # for i in range(len(images)):
-            # all_video_inputs.append(VideoGenInput(image_path=images[i], video_prompt=video_prompts.prompts[i]))
-
-        # video_gen = VideoGen.create_video(all_video_inputs)
-
-        # Save images (copy from images/uuid.png to save_dir)
-        images_dir = Path('images')
+        images_dir: Path = Path('images')
         for idx, image_uuid in enumerate(images):
-            src_path = images_dir / f'{image_uuid}.png'
-            dst_path = save_dir / f'image_{idx+1}.png'
+            src_path: Path = images_dir / f'{image_uuid}.png'
+            dst_path: Path = save_dir / f'image_{idx+1}.png'
             if src_path.exists():
                 shutil.copy2(src_path, dst_path)
-
-        # Save audios (BytesIO)
         for idx, audio_io in enumerate(audios):
-            audio_path = save_dir / f'audio_{idx+1}.mp3'
+            audio_path: Path = save_dir / f'audio_{idx+1}.mp3'
             with open(audio_path, 'wb') as f:
                 f.write(audio_io.getbuffer())
-
         return VideoMakerResult(
             title=primary_result.title,
             chapters=primary_result.chapters,
             scripts=scripts.scripts,
             image_prompts=image_prompts,
-            video_prompts=video_prompts,
+            # video_prompts=video_prompts,
             lang=self.lang,
             timestamp=timestamp
         )

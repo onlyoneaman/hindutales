@@ -5,9 +5,10 @@ import time
 def main():
     load_dotenv()
     start_time = time.time()
-    title = "Ganga’s Silent Sacrifice"
+    title = "Ekalavya’s Thumb"
     video_maker = VideoMaker(params=VideoMakerParams(title=title))
     result = video_maker.generate()
+    print("5. Saving video")
     video_maker.save_video(result, title)
     end_time = time.time()
     print(f"Total time taken: {end_time - start_time}")

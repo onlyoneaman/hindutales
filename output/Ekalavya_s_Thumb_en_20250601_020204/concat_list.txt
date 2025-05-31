@@ -1,0 +1,8 @@
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_1.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_2.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_3.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_4.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_5.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_6.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_7.mp4'
+file '/Users/aman/projects/amankumarai/hindutales/output/Ekalavya_s_Thumb_en_20250601_020204/segment_8.mp4'
