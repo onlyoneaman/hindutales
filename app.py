@@ -5,7 +5,7 @@ import time
 def main():
     load_dotenv()
     start_time = time.time()
-    title = "Ekalavya’s Thumb"
+    title = "Bhishma’s Vow"
     video_maker = VideoMaker(params=VideoMakerParams(title=title))
     result = video_maker.generate()
     print("5. Saving video")
