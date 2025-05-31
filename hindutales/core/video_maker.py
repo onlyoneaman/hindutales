@@ -9,6 +9,9 @@ import json
 import shutil
 import re
 
+def sanitize_filename(name: str) -> str:
+    return re.sub(r'[^\w\-]', '_', name)
+
 class VideoMaker:
     def __init__(self, params: VideoMakerParams) -> None:
         self.title: str = params.title
@@ -19,9 +22,26 @@ class VideoMaker:
 
     def generate(self) -> VideoMakerResult:
         primary_result = self.story_guru.generate_outline(self.title, self.lang)
+
+        save_dir: Path = Path('output') / sanitize_filename(self.title)
+        save_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save LLM-generated data
+        with open(save_dir / 'primary_result.json', 'w', encoding='utf-8') as f:
+            json.dump(primary_result.model_dump(), f, ensure_ascii=False, indent=2)
+
         scripts = self.story_guru.generate_scripts(primary_result)
-        image_prompts = self.prompt_guru.get_image_prmopts(self.title, primary_result.chapters, scripts.scripts)
+
+        with open(save_dir / 'scripts.json', 'w', encoding='utf-8') as f:
+            json.dump(scripts.model_dump(), f, ensure_ascii=False, indent=2)
+
+        image_prompts = self.prompt_guru.get_image_prompts(self.title, primary_result.chapters, scripts.scripts)
         video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
+
+        with open(save_dir / 'image_prompts.json', 'w', encoding='utf-8') as f:
+            json.dump(image_prompts.model_dump(), f, ensure_ascii=False, indent=2)
+        with open(save_dir / 'video_prompts.json', 'w', encoding='utf-8') as f:
+            json.dump(video_prompts.model_dump(), f, ensure_ascii=False, indent=2)
 
         audio_maker = AudioMaker(
             params=AudioMakerParams(
@@ -39,23 +59,6 @@ class VideoMaker:
             # all_video_inputs.append(VideoGenInput(image_path=images[i], video_prompt=video_prompts.prompts[i]))
 
         # video_gen = VideoGen.create_video(all_video_inputs)
-
-
-        def sanitize_filename(name: str) -> str:
-            return re.sub(r'[^\w\-]', '_', name)
-
-        save_dir: Path = Path('output') / sanitize_filename(self.title)
-        save_dir.mkdir(parents=True, exist_ok=True)
-
-        # Save LLM-generated data
-        with open(save_dir / 'primary_result.json', 'w', encoding='utf-8') as f:
-            json.dump(primary_result.__dict__ if hasattr(primary_result, '__dict__') else dict(primary_result), f, ensure_ascii=False, indent=2)
-        with open(save_dir / 'scripts.json', 'w', encoding='utf-8') as f:
-            json.dump(scripts.scripts, f, ensure_ascii=False, indent=2)
-        with open(save_dir / 'image_prompts.json', 'w', encoding='utf-8') as f:
-            json.dump(image_prompts.__dict__ if hasattr(image_prompts, '__dict__') else dict(image_prompts), f, ensure_ascii=False, indent=2)
-        with open(save_dir / 'video_prompts.json', 'w', encoding='utf-8') as f:
-            json.dump(video_prompts.__dict__ if hasattr(video_prompts, '__dict__') else dict(video_prompts), f, ensure_ascii=False, indent=2)
 
         # Save images (copy from images/uuid.png to save_dir)
         images_dir = Path('images')
