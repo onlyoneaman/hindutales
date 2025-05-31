@@ -1,8 +1,9 @@
 from hindutales.core.story_guru import StoryGuru
 from hindutales.core.prompt_guru import PromptGuru
 from hindutales.core.video_gen import VideoGen
-from hindutales.types.main import VideoGenInput, VideoMakerParams, VideoMakerResult
+from hindutales.types.main import VideoGenInput, VideoMakerParams, VideoMakerResult, AudioMakerParams, AudioMakerResult
 from hindutales.core.image_maker import ImageMaker
+from hindutales.core.audio_maker import AudioMaker
 
 class VideoMaker:
     def __init__(self, params: VideoMakerParams) -> None:
@@ -17,6 +18,15 @@ class VideoMaker:
         scripts = self.story_guru.generate_scripts(primary_result)
         image_prompts = self.prompt_guru.get_image_prmopts(self.title, primary_result.chapters, scripts.scripts)
         video_prompts = self.prompt_guru.get_video_prompts(self.title, primary_result.chapters, scripts.scripts)
+
+        audio_maker = AudioMaker(
+            params=AudioMakerParams(
+                paras=scripts.scripts,
+                lang=self.lang,
+                duration=self.duration
+            )
+        )
+        audios = audio_maker.generate()
 
         images = ImageMaker.generate(image_prompts.prompts)
 

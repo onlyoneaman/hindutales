@@ -1,6 +1,5 @@
 from io import BytesIO
 from elevenlabs.client import ElevenLabs
-from elevenlabs.play import play
 from dotenv import load_dotenv
 from typing import List
 from dataclasses import dataclass

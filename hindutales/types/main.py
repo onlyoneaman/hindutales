@@ -1,5 +1,11 @@
 from pydantic import BaseModel
 from typing import List
+from io import BytesIO
+
+class AudioMakerParams(BaseModel):
+    paras: List[str]
+    lang: str = "en"
+    duration: int = 30
 
 class VideoMakerParams(BaseModel):
     title: str
@@ -39,3 +45,5 @@ class Message(BaseModel):
     role: str
     content: str
     
+class AudioMakerResult:
+    audios: list[BytesIO]
