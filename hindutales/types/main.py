@@ -34,7 +34,7 @@ class VideoMakerResult(BaseModel):
     chapters: List[Chapter]
     scripts: List[str]
     image_prompts: ImagePrompts
-    video_prompts: VideoPrompts
+    # video_prompts: VideoPrompts
     lang: str
 
 class VideoGenInput(BaseModel):

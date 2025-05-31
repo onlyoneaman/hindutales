@@ -79,6 +79,6 @@ class VideoMaker:
             chapters=primary_result.chapters,
             scripts=scripts.scripts,
             image_prompts=image_prompts,
-            video_prompts=video_prompts,
+            # video_prompts=list(VideoPrompts(prompts=["test"]).prompts),
             lang=self.lang
         )
