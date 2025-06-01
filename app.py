@@ -5,8 +5,8 @@ import time
 def main():
     load_dotenv()
     start_time = time.time()
-    title = "Ekalavya’s Thumb"
-    video_maker = VideoMaker(params=VideoMakerParams(title=title))
+    title = "Chatrapati Shivaji Maharajas Escape from Agra"
+    video_maker = VideoMaker(params=VideoMakerParams(title=title,lang="Marathi"))
     result = video_maker.generate()
     print("5. Saving video")
     video_maker.save_video(result, title)
