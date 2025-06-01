@@ -13,5 +13,5 @@ class AudioMaker:
         )
 
     def generate(self) -> list[BytesIO]:
-        audios = self.t2a.generate(self.paras)
+        audios = self.t2a.generate(paragraphs=self.paras,lang=self.lang)
         return audios.audio

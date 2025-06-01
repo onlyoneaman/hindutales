@@ -6,7 +6,7 @@ def main():
     load_dotenv()
     start_time = time.time()
     title = "King Shibi’s Test"
-    video_maker = VideoMaker(params=VideoMakerParams(title=title, lang="marathi"))
+    video_maker = VideoMaker(params=VideoMakerParams(title=title, lang="Gujarati"))
     result = video_maker.generate()
     print("5. Saving video")
     video_maker.save_video(result, title)
