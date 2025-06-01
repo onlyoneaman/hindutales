@@ -10,6 +10,8 @@ import requests
 
 load_dotenv()
 
+DIMENSIONS = "1024x1536"
+
 class ImageMaker:
     def __init__(self):
         pass
@@ -36,8 +38,8 @@ class ImageMaker:
                 result = client.images.generate(
                     model="gpt-image-1",
                     prompt=prompt,
-                    size="1024x1024",
-                    quality="low",
+                    size=DIMENSIONS,
+                    quality="high",
                 )
                 image_base64: str = result.data[0].b64_json
                 image_bytes: bytes = base64.b64decode(image_base64)
@@ -49,7 +51,7 @@ class ImageMaker:
                     result = azure_client.images.generate(
                         model="dall-e-3",
                         prompt=prompt,
-                        size="1024x1024",
+                        size=DIMENSIONS,
                         n=1,
                         style="vivid",
                         quality="standard",
