@@ -30,7 +30,7 @@ class VideoMaker:
     def generate(self) -> VideoMakerResult:
         print("1. Generating outline")
         step_start: float = time.perf_counter()
-        primary_result = self.story_guru.generate_outline(self.title, self.lang)
+        primary_result = self.story_guru.generate_outline(self.title)
         print(f"Step 1 done in {time.perf_counter() - step_start:.2f} seconds.")
 
         timestamp: str = time.strftime("%Y%m%d_%H%M%S")
@@ -61,10 +61,21 @@ class VideoMaker:
             # json.dump(video_prompts.model_dump(), f, ensure_ascii=False, indent=2)
 
         print("4. Generating audio")
+
+        narration_script = scripts.scripts
+
+        if self.lang.lower() != "english":
+            print(f"4.1 Translating language to {self.lang}")
+            step_start = time.perf_counter()  # Start performance timer
+            narration_script = self.story_guru.translate(scripts=scripts, lang=self.lang)
+            with open(save_dir / 'translated_narration_script.json', 'w', encoding='utf-8') as f:
+                json.dump(narration_script.model_dump(), f, ensure_ascii=False, indent=2)
+            print(f"Step 4.1 done in {time.perf_counter() - step_start:.2f} seconds.")  # Log duration
+
         step_start = time.perf_counter()
         audio_maker = AudioMaker(
             params=AudioMakerParams(
-                paras=scripts.scripts,
+                paras=narration_script.scripts,
                 lang=self.lang,
                 duration=self.duration
             )

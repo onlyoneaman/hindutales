@@ -18,7 +18,7 @@ class StoryGuru:
             top_p=0.9
         )
 
-    def generate_outline(self, title: str, lang: str):
+    def generate_outline(self, title: str):
         """
         Goals:
         1. break down story in such parts where the total story can be of length 1-1.5 minutes
@@ -73,3 +73,38 @@ class StoryGuru:
             return resp
         except Exception as e:
             raise ValueError(f"Failed to parse Gemini output: {e}")
+    
+    def translate(self,scripts: Scripts, lang: str) -> Scripts:
+        """
+        Translates the script to the given language
+
+        Args:
+            scripts (Scripts): scripts in English
+            lang (str): target language 
+
+        Returns:
+            Scripts: translated scripts
+        """
+
+        system_prompt = """You are a culturally sensitive translation model.
+Your task is to translate a list of Indic-origin mythical and folktale scripts from English to a target Indian language specified by the user.
+Maintain the natural flow and readability of the target language.
+Preserve the emotional tone, rhythm, and narrative style of the original.
+Respect the mythical and folkloric context—do not modernize or rationalize the content.
+Avoid literal translations if they result in awkward or unnatural phrasing.
+Use culturally appropriate idioms, expressions, and traditional language patterns.
+For example, using honorary plural forms etc.
+Do not add, remove, or alter story elements beyond what is necessary for natural translation.
+The input and output follow the format: class Scripts(BaseModel): scripts: List[str].
+Return only the translated scripts in the same structure."""     
+
+        try:
+            translated_scripts = self.t2t.generate(
+                system_prompt=system_prompt,
+                user_prompt= f"Target Language: {lang}",
+                output_type=Scripts,
+                input_data=scripts
+            )
+            return translated_scripts
+        except  Exception as e:
+            raise ValueError(f"Failed to translate: {e}")
