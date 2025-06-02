@@ -5,14 +5,13 @@ from hindutales.types.main import PrimaryResult, Scripts, Message
 # story -> chapters -> scripts, videos
 LENGTH_OF_STORY_IN_SECONDS = 60
 NUMBER_OF_CHAPTERS_PER_STORY = 5
-NUMBER_OF_SCRIPTS_PER_CHAPTER = 2
+NUMBER_OF_SCRIPTS_PER_CHAPTER = 1
 NUMBER_OF_VIDEOS_PER_CHAPTER = 1
 LENGTH_OF_SCRIPT_IN_SECONDS = LENGTH_OF_STORY_IN_SECONDS / (NUMBER_OF_CHAPTERS_PER_STORY * NUMBER_OF_SCRIPTS_PER_CHAPTER)
 
 
 class StoryGuru:
     def __init__(self):
-        pass
         self.t2t = T2TConverter(
             model="gpt-4o",
             temperature=0.8,

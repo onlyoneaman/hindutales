@@ -12,3 +12,4 @@ asyncio
 requests
 elevenlabs
 ffmpeg-python
+Pillow

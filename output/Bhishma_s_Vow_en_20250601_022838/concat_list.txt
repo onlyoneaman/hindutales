@@ -1,5 +1,0 @@
-file '/Users/aman/projects/amankumarai/hindutales/output/Bhishma_s_Vow_en_20250601_022838/segment_1.mp4'
-file '/Users/aman/projects/amankumarai/hindutales/output/Bhishma_s_Vow_en_20250601_022838/segment_2.mp4'
-file '/Users/aman/projects/amankumarai/hindutales/output/Bhishma_s_Vow_en_20250601_022838/segment_3.mp4'
-file '/Users/aman/projects/amankumarai/hindutales/output/Bhishma_s_Vow_en_20250601_022838/segment_4.mp4'
-file '/Users/aman/projects/amankumarai/hindutales/output/Bhishma_s_Vow_en_20250601_022838/segment_5.mp4'

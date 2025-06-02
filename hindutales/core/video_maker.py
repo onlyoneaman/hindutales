@@ -1,11 +1,12 @@
 from hindutales.core.story_guru import StoryGuru
 from hindutales.core.prompt_guru import PromptGuru
-from hindutales.core.video_gen import VideoGen
-from hindutales.types.main import VideoGenInput, VideoMakerParams, VideoMakerResult, AudioMakerParams, AudioMakerResult
+from hindutales.types.main import VideoMakerParams, VideoMakerResult, AudioMakerParams, AudioMakerResult
 from hindutales.core.image_maker import ImageMaker
+from hindutales.core.motion_effect import get_random_motion_effect, get_motion_filter
 from hindutales.core.audio_maker import AudioMaker
+from hindutales.core.utils import create_audio_image_pairs
+
 import time
-from typing import Any
 from pathlib import Path
 import json
 import shutil
@@ -106,34 +107,39 @@ class VideoMaker:
         audio_files: list[str] = sorted(glob.glob(str(input_dir / 'audio_*.mp3')))
         image_files: list[str] = sorted(glob.glob(str(input_dir / 'image_*.png')))
 
-        print(f"Audio files: {audio_files}")
-        print(f"Image files: {image_files}")
-
         def extract_index(filename: str) -> int:
             match = re.search(r'_(\d+)\.', filename)
             return int(match.group(1)) if match else -1
 
-        audio_dict = {extract_index(f): f for f in audio_files if extract_index(f) != -1}
-        image_dict = {extract_index(f): f for f in image_files if extract_index(f) != -1}
-        common_indices = sorted(set(audio_dict) & set(image_dict))
-        missing_audio = sorted(set(image_dict) - set(audio_dict))
-        missing_image = sorted(set(audio_dict) - set(image_dict))
-        for idx in missing_audio:
-            print(f"Warning: Missing audio file for image index {idx}")
-        for idx in missing_image:
-            print(f"Warning: Missing image file for audio index {idx}")
-        if not common_indices:
-            raise ValueError("No matching audio/image index pairs found.")
-        paired_files = [(audio_dict[i], image_dict[i]) for i in common_indices]
+        audio_list = sorted(audio_files, key=extract_index)
+        image_list = sorted(image_files, key=extract_index)
+
+        paired_files = create_audio_image_pairs(audio_list, image_list)
         segment_files: list[Path] = []
+
+        # audio_dict = {extract_index(f): f for f in audio_files if extract_index(f) != -1}
+        # image_dict = {extract_index(f): f for f in image_files if extract_index(f) != -1}
+
+        # common_indices = sorted(set(audio_dict) & set(image_dict))
+        # missing_audio = sorted(set(image_dict) - set(audio_dict))
+        # missing_image = sorted(set(audio_dict) - set(image_dict))
+        # for idx in missing_audio:
+        #     print(f"Warning: Missing audio file for image index {idx}")
+        # for idx in missing_image:
+        #     print(f"Warning: Missing image file for audio index {idx}")
+        # if not common_indices:
+        #     raise ValueError("No matching audio/image index pairs found.")
+        # paired_files = [(audio_dict[i], image_dict[i]) for i in common_indices]
+        # segment_files: list[Path] = []
 
         # Step 1: Generate video segments for each image/audio pair
 
         print(f"Generating video segments for {len(paired_files)} pairs")
         print(f"Joined video segments: {paired_files}")
 
-        for idx, (audio, image) in enumerate(paired_files, 1):
+        for idx, pair in enumerate(paired_files, 1):
             # Get audio duration using ffmpeg.probe
+            audio, image, duration = pair
             probe = ffmpeg.probe(audio)
             duration: float = float(probe['format']['duration'])
             segment_path: Path = save_dir / f'segment_{idx}.mp4'
@@ -141,8 +147,9 @@ class VideoMaker:
 
             stream_img = ffmpeg.input(image, loop=1, t=duration)
             stream_aud = ffmpeg.input(audio)
+
             stream = ffmpeg.output(
-                stream_img.video.filter('scale', 1024, 1024),
+                stream_img,
                 stream_aud.audio.filter('aformat', channel_layouts='stereo', sample_rates=44100),
                 str(segment_path),
                 vcodec='libx264',
@@ -154,7 +161,7 @@ class VideoMaker:
                 t=duration,
                 y=None
             )
-            stream.run(overwrite_output=True, quiet=True)
+            stream.run(overwrite_output=True, quiet=False)
 
         # Step 2: Concatenate all segments
         if not segment_files:

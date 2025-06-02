@@ -4,12 +4,12 @@ from io import BytesIO
 
 class AudioMakerParams(BaseModel):
     paras: List[str]
-    lang: str = "en"
+    lang: str = "english"
     duration: int = 30
 
 class VideoMakerParams(BaseModel):
     title: str
-    lang: str = "en"
+    lang: str = "english"
     duration: int = 30
 
 class Chapter(BaseModel):

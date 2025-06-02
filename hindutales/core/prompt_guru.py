@@ -1,7 +1,6 @@
 from typing import List
 from hindutales.nodes.agents.t2t.t2t import T2TConverter
-from hindutales.types.main import Chapter, Message
-from hindutales.client.gemini_client import client
+from hindutales.types.main import Chapter
 from hindutales.types.main import ImagePrompts, VideoPrompts
 
 NUMBER_OF_IMAGES_PER_SCRIPT = 1
