@@ -73,16 +73,23 @@ def merge_videos(video_paths: list[str], output_path: str,
             current_audio = ffmpeg.concat(current_audio, next_audio, v=0, a=1)
         
         # Create output
-        output = ffmpeg.output(current_video, current_audio, output_path,
-                              vcodec='libx264', acodec='aac', preset='medium', crf=23)
+        output = ffmpeg.output(
+            current_video,
+            current_audio,
+            output_path,
+            vcodec='libx264',
+            acodec='aac',
+            preset='medium',
+            crf=23,
+        )
     
-    ffmpeg.run(output, overwrite_output=True)
+    ffmpeg.run(output, quiet=True, overwrite_output=True)
     print(f"Merged video saved as {output_path}")
 
 if __name__ == "__main__":
     video1_path = "sample/Bhishma's Vow_padded.mp4"
     video2_path = "sample/Ganga’s Silent Sacrifice_padded.mp4"
-    video3_path = "sample/Ganga’s Silent Sacrifice_padded.mp4"
+    video3_path = "sample/Prahlad and Hiranyakashipu_resized_padded.mp4"
     output_path = "sample/merged_stories.mp4"
     
     time_start = time.time()
@@ -95,7 +102,7 @@ if __name__ == "__main__":
     video_paths = [video1_path, video2_path, video3_path]
     
     # Examples of different merge options:
-    merge_videos(video_paths, output_path, transition='fade', transition_duration=1.5)
+    merge_videos(video_paths, output_path, transition='simple', transition_duration=1.5)
     # merge_videos(video1_path, video2_path, output_path, transition='simple')
 
     end_time = time.time()
