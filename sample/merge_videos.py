@@ -52,7 +52,13 @@ def merge_videos(video_paths: list[str], output_path: str,
         for i in range(1, len(videos)):
             # Get duration of current video for transition timing
             prev_video_duration = float(ffmpeg.probe(video_paths[i-1])['format']['duration'])
-            current_duration += prev_video_duration
+            
+            # For the first transition, use full duration
+            # For subsequent transitions, account for previous overlaps
+            if i == 1:
+                current_duration = prev_video_duration
+            else:
+                current_duration += prev_video_duration - transition_duration
             
             next_video = videos[i]['v']
             next_audio = videos[i]['a']
@@ -102,7 +108,7 @@ if __name__ == "__main__":
     video_paths = [video1_path, video2_path, video3_path]
     
     # Examples of different merge options:
-    merge_videos(video_paths, output_path, transition='simple', transition_duration=1.5)
+    merge_videos(video_paths, output_path, transition='fade', transition_duration=1.5)
     # merge_videos(video1_path, video2_path, output_path, transition='simple')
 
     end_time = time.time()
