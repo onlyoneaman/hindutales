@@ -82,6 +82,7 @@ def merge_videos(video_paths: list[str], output_path: str,
 if __name__ == "__main__":
     video1_path = "sample/Bhishma's Vow_padded.mp4"
     video2_path = "sample/Ganga’s Silent Sacrifice_padded.mp4"
+    video3_path = "sample/Ganga’s Silent Sacrifice_padded.mp4"
     output_path = "sample/merged_stories.mp4"
     
     time_start = time.time()
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     
     # Other options:
     # List of videos to merge
-    video_paths = [video1_path, video2_path]
+    video_paths = [video1_path, video2_path, video3_path]
     
     # Examples of different merge options:
     merge_videos(video_paths, output_path, transition='fade', transition_duration=1.5)
