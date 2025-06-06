@@ -106,8 +106,8 @@ def addSpaceToVideo(inputPath: str, outputPath: str) -> None:
     
 
 if __name__ == "__main__":
-    inputPath: str = "sample/Bhishma's Vow.mp4"
-    outputPath: str = "sample/Bhishma's Vow_padded.mp4"
+    inputPath: str = "sample/Ganga’s Silent Sacrifice.mp4"
+    outputPath: str = "sample/Ganga’s Silent Sacrifice_padded.mp4"
     printVideoAspectRatio(inputPath)
     # resizeIfSquareVideo(inputPath, outputPath)
     addSpaceToVideo(inputPath, outputPath)
