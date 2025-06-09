@@ -2,7 +2,6 @@ import base64
 from io import BytesIO
 import json
 from elevenlabs.client import ElevenLabs
-from elevenlabs import play
 from dotenv import load_dotenv
 from typing import List
 from dataclasses import dataclass

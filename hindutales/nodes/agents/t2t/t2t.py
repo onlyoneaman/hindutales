@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import Type, TypeVar, Union, List
-from openai import AzureOpenAI
+from hindutales.client.gemini_client import client
 import json
 
 T = TypeVar("T", bound=BaseModel)
@@ -9,7 +9,7 @@ T = TypeVar("T", bound=BaseModel)
 load_dotenv()
 
 class T2TConverter:
-    def __init__(self, model: str, temperature: float = 0.7, top_p: float = 0.9) -> None:
+    def __init__(self, model: str = 'gemini-2.0-flash-lite', temperature: float = 0.7, top_p: float = 0.9) -> None:
         """
         Initialize the T2TConverter with AzureOpenAI parameters.
 
@@ -57,7 +57,6 @@ class T2TConverter:
         ]
         response = None
         try:
-            client = AzureOpenAI(api_version="2024-10-21")
             response = client.beta.chat.completions.parse(
                 model=self.model,
                 messages=messages,

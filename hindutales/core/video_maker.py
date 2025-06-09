@@ -2,7 +2,6 @@ from hindutales.core.story_guru import StoryGuru
 from hindutales.core.prompt_guru import PromptGuru
 from hindutales.types.main import VideoMakerParams, VideoMakerResult, AudioMakerParams, AudioMakerResult
 from hindutales.core.image_maker import ImageMaker
-from hindutales.core.motion_effect import get_random_motion_effect, get_motion_filter
 from hindutales.core.audio_maker import AudioMaker
 from hindutales.core.utils import create_audio_image_pairs
 
@@ -14,14 +13,12 @@ import re
 import glob
 from pathlib import Path
 import ffmpeg
-import re
-
-def sanitize_filename(name: str) -> str:
-    return re.sub(r'[^\w\-]', '_', name)
+from hindutales.utils.fs_utils import sanitize_filename
 
 class VideoMaker:
     def __init__(self, params: VideoMakerParams) -> None:
         self.title: str = params.title
+        self.description: str = params.description
         self.lang: str = params.lang
         self.duration: int = params.duration
         self.story_guru = StoryGuru()
@@ -30,7 +27,7 @@ class VideoMaker:
     def generate(self) -> VideoMakerResult:
         print("1. Generating outline")
         step_start: float = time.perf_counter()
-        primary_result = self.story_guru.generate_outline(self.title)
+        primary_result = self.story_guru.generate_outline(self.title, self.description)
         print(f"Step 1 done in {time.perf_counter() - step_start:.2f} seconds.")
 
         timestamp: str = time.strftime("%Y%m%d_%H%M%S")
@@ -80,6 +77,7 @@ class VideoMaker:
                 duration=self.duration
             )
         )
+        
         audios = audio_maker.generate()
         print(f"Step 4 done in {time.perf_counter() - step_start:.2f} seconds.")
 
@@ -98,8 +96,10 @@ class VideoMaker:
             audio_path: Path = save_dir / f'audio_{idx+1}.mp3'
             with open(audio_path, 'wb') as f:
                 f.write(audio_io.getbuffer())
+
         return VideoMakerResult(
             title=primary_result.title,
+            description=primary_result.description,
             chapters=primary_result.chapters,
             scripts=scripts.scripts,
             image_prompts=image_prompts,

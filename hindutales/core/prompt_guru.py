@@ -7,11 +7,7 @@ NUMBER_OF_IMAGES_PER_SCRIPT = 1
 
 class PromptGuru:
     def __init__(self):
-        self.t2t = T2TConverter(
-            model="gpt-4o",
-            temperature=0.8,
-            top_p=0.9
-        )
+        self.t2t = T2TConverter()
     
     def get_image_prompts(self, title: str, chapters: List[Chapter], scripts: List[str]):
         """

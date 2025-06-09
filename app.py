@@ -5,8 +5,10 @@ import time
 def main():
     load_dotenv()
     start_time = time.time()
-    title = "The Clever Weaver (Rajasthan) - A poor weaver promises a magical turban to a greedy king, but cleverly uses wit to expose the king’s greed and injustice."
-    video_maker = VideoMaker(params=VideoMakerParams(title=title, lang="english"))
+    title = "Bhishma's Vow"
+    description = "To end his father’s sorrow, Bhishma renounced the throne—and love—forever. In a moment that altered the fate of the Kuru dynasty, he swore a lifelong vow of celibacy so that Satyavati’s children could rule. The gods watched in awe, naming him Bhishma—the one of the terrible vow. A tale of duty, sacrifice, and unshakable resolve."
+    params = VideoMakerParams(title=title, lang="english", description=description)
+    video_maker = VideoMaker(params=params)
     result = video_maker.generate()
     print("5. Saving video")
     video_maker.save_video(result, title)

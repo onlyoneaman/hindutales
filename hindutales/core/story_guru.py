@@ -12,13 +12,9 @@ LENGTH_OF_SCRIPT_IN_SECONDS = LENGTH_OF_STORY_IN_SECONDS / (NUMBER_OF_CHAPTERS_P
 
 class StoryGuru:
     def __init__(self):
-        self.t2t = T2TConverter(
-            model="gpt-4o",
-            temperature=0.8,
-            top_p=0.9
-        )
+        self.t2t = T2TConverter()
 
-    def generate_outline(self, title: str):
+    def generate_outline(self, title: str, description: str):
         """
         Goals:
         1. break down story in such parts where the total story can be of length 1-1.5 minutes
@@ -26,21 +22,23 @@ class StoryGuru:
         """
         system_prompt = (
             f"You are an expert mythological storyteller and a creative short-form video writer. Your primary goal is to create a {LENGTH_OF_STORY_IN_SECONDS} seconds long YouTube Short or Instagram Reel that is engaging, educational, and, most importantly, factually accurate to authentic Indian mythology.\n"
-            f"You must focus on correctness, coherence, and depth, drawing only from real mythological sources, scriptures, and epics (such as the Ramayana, Mahabharata, Puranas, Vedas, etc.). Do NOT invent or alter events, characters, or facts unless explicitly asked for a fictionalized version.\n"
-            f"Given a prompt, generate: \n"
-            f"1. A title for the video that will be the story's title.\n"
-            f"2. An outline of the video in chapters. Chapters must be divided such that, conceptually, describing each chapter in both audio and video format should take roughly equal time. Keep chapter titles short, but ensure each chapter is a logical and authentic segment of the mythological narrative.\n"
-            f"3. There should be exactly {NUMBER_OF_CHAPTERS_PER_STORY} chapters for the given story.\n"
-            f"Return a JSON with keys: title, chapters.\n"
+            f"You must focus on correctness, coherence, and depth, drawing only from real mythological sources, scriptures, and epics (such as the Ramayana, Mahabharata, Puranas, Vedas, etc.). Do NOT invent or alter events, characters, or facts unless explicitly asked for a fictionalized version."
+            f"Given a prompt return JSON with"
+            f"1. A title for the video that will be the story's title."
+            f"2. A description for the video that will be the story's description."
+            f"3. An outline of the video in chapters. Chapters must be divided such that, conceptually, describing each chapter in both audio and video format should take roughly equal time. Keep chapter titles short, but ensure each chapter is a logical and authentic segment of the mythological narrative."
+            f"4. There should be exactly {NUMBER_OF_CHAPTERS_PER_STORY} chapters for the given story."
+            f"Return a JSON with keys: title, description, chapters."
         )
         messages: List[Message] = [
             Message(role="system", content=system_prompt),
-            Message(role="user", content=f"Theme: {title}")
+            Message(role="user", content=f"Theme: {title}, description: {description}")
         ]
+
         resp = self.t2t.generate(
             input_data=messages,
             system_prompt=system_prompt,
-            user_prompt=f"Theme: {title}",
+            user_prompt=f"Theme: {title}, description: {description}",
             output_type=PrimaryResult
         )
         try:

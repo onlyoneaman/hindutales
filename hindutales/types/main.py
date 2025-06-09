@@ -9,6 +9,7 @@ class AudioMakerParams(BaseModel):
 
 class VideoMakerParams(BaseModel):
     title: str
+    description: str
     lang: str = "english"
     duration: int = 30
 
@@ -18,6 +19,7 @@ class Chapter(BaseModel):
 
 class PrimaryResult(BaseModel):
     title: str
+    description: str
     chapters: List[Chapter]
 
 class Scripts(BaseModel):
@@ -31,6 +33,7 @@ class VideoPrompts(BaseModel):
 
 class VideoMakerResult(BaseModel):
     title: str
+    description: str
     chapters: List[Chapter]
     scripts: List[str]
     image_prompts: ImagePrompts
