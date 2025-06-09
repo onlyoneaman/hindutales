@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 import base64
-from hindutales.client.openai_client import client, azure_client
+from hindutales.clients.openai_client import client, azure_client
 import uuid
 import os
 from concurrent.futures import ThreadPoolExecutor

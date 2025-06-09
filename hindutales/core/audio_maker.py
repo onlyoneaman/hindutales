@@ -1,7 +1,7 @@
 from hindutales.nodes.agents.t2a.t2a import T2AConverter
 from io import BytesIO
 from hindutales.types.main import AudioMakerParams
-from hindutales.client.elevenlabs_client import elevenlabs_client
+from hindutales.clients.elevenlabs_client import elevenlabs_client
 
 class AudioMaker:
     def __init__(self, params: AudioMakerParams) -> None:

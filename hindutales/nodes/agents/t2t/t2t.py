@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from typing import Type, TypeVar, Union, List
-from hindutales.client.gemini_client import client
+from hindutales.clients.gemini_client import client
 import json
 
 T = TypeVar("T", bound=BaseModel)
